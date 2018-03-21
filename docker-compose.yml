@@ -1,0 +1,23 @@
+version: '3'
+services:
+
+  # keygen:
+  #   image: kitsuyui/docker-ssh
+  #   volumes:
+  #     - ./home_ssh:/home/sshuser/.ssh
+  #   command: ["ssh-keygen"]
+
+  example_left_forward_8080:
+    # network_mode: host
+    image: kitsuyui/docker-ssh
+    volumes:
+      - ./home_ssh:/home/sshuser/.ssh
+    command: ssh -N -L 8080:127.0.0.1:8080 examplehost
+
+  example_right_forward_8080:
+    # network_mode: host
+    image: kitsuyui/docker-ssh
+    volumes:
+      - ./home_ssh:/home/sshuser/.ssh
+    # GatewayPorts=clientspecified is needed in examplehost
+    command: ssh -N -R 8080:127.0.0.1:8080 examplehost
