@@ -9,14 +9,14 @@ services:
 
   example_left_forward_8080:
     # network_mode: host
-    image: kitsuyui/docker-ssh
+    image: kitsuyui/docker-ssh:latest@sha256:44cf34fdec667424e1c1bc308da831e53e8f336f6a63966c7c84acee9eaaf5e7
     volumes:
       - ./home_ssh:/home/sshuser/.ssh
     command: ssh -N -L 8080:127.0.0.1:8080 examplehost
 
   example_right_forward_8080:
     # network_mode: host
-    image: kitsuyui/docker-ssh
+    image: kitsuyui/docker-ssh:latest@sha256:44cf34fdec667424e1c1bc308da831e53e8f336f6a63966c7c84acee9eaaf5e7
     volumes:
       - ./home_ssh:/home/sshuser/.ssh
     # GatewayPorts=clientspecified is needed in examplehost
