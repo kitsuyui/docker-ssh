@@ -7,7 +7,7 @@ Host OS is Alpine Linux.
 
 # LICENSE
 
-The 3-Clause BSD License. See also LISENCE file.
+The 3-Clause BSD License. See also LICENSE file.
 
 But this is quite simple Dockerfile.
 So it might have no novelty.
