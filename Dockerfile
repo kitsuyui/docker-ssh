@@ -1,4 +1,4 @@
-FROM alpine:3.12@sha256:d7342993700f8cd7aba8496c2d0e57be0666e80b4c441925fc6f9361fa81d10e
+FROM alpine:3.13@sha256:08d6ca16c60fe7490c03d10dc339d9fd8ea67c6466dea8d558526b1330a85930
 RUN apk --update add --no-cache openssh-client && \
 addgroup -S sshuser && \
 adduser -S -G sshuser sshuser && \
