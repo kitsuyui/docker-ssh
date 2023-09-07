@@ -1,5 +1,6 @@
 name: Test docker build
-on: [push]
+on:
+  - pull_request
 jobs:
   buildx:
     runs-on: ubuntu-latest
