@@ -10,7 +10,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         # cf. https://github.com/marketplace/actions/docker-setup-buildx
 
       - name: Inspect builder
