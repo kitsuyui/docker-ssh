@@ -2,5 +2,11 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>kitsuyui/renovate-config"
-  ]
+  ],
+  // disable pinning and digests for docker images (update semver only)
+  "docker": {
+    "digests": false,
+    "enabled": true,
+    "pinDigests": false
+  },
 }
