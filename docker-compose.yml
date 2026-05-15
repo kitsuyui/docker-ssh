@@ -13,7 +13,7 @@ services:
     # image: kitsuyui/docker-ssh
     volumes:
       - ./home_ssh:/home/sshuser/.ssh
-    command: ssh -o StrictHostKeyChecking=accept-new -N -L 8080:127.0.0.1:8080 examplehost
+    command: ssh -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -N -L 8080:127.0.0.1:8080 examplehost
 
   example_right_forward_8080:
     # network_mode: host
@@ -23,4 +23,4 @@ services:
       - ./home_ssh:/home/sshuser/.ssh
     # GatewayPorts=clientspecified is needed in examplehost's /etc/ssh/sshd_config,
     # and the client must request a non-loopback bind address.
-    command: ssh -o StrictHostKeyChecking=accept-new -N -R 0.0.0.0:8080:127.0.0.1:8080 examplehost
+    command: ssh -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -N -R 0.0.0.0:8080:127.0.0.1:8080 examplehost
