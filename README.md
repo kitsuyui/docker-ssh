@@ -15,13 +15,35 @@ docker run --rm -v ./home_ssh:/home/sshuser/.ssh kitsuyui/docker-ssh ssh user@ho
 
 ## What to place in the mounted directory
 
-| File | Purpose | Permission |
+| Path | Purpose | Permission |
 |---|---|---|
+| `home_ssh/` | Host directory mounted as `/home/sshuser/.ssh` | `700` |
 | `id_ed25519` (or `id_rsa`) | Private key for public-key authentication | `600` |
 | `known_hosts` | Trusted host fingerprints (avoids interactive prompt on first connect) | `644` |
 | `config` | Per-host SSH settings (optional) | `600` |
 
+The Dockerfile creates `/home/sshuser/.ssh` with secure ownership and mode bits,
+but a bind mount replaces that directory at runtime. OpenSSH therefore sees the
+host-side owner and permissions for `./home_ssh`.
+
+On Linux hosts, make the directory and private files readable only by the
+container user before starting the container:
+
+```sh
+sudo chown -R 100:100 home_ssh
+chmod 700 home_ssh
+for key in home_ssh/id_ed25519 home_ssh/id_rsa; do
+  [ ! -e "$key" ] || chmod 600 "$key"
+done
+[ ! -e home_ssh/config ] || chmod 600 home_ssh/config
+[ ! -e home_ssh/known_hosts ] || chmod 644 home_ssh/known_hosts
+```
+
 All files must be owned by the user running the container (`sshuser`, uid 100).
+If Docker Desktop for macOS or Windows reports `UNPROTECTED PRIVATE KEY FILE!`
+even after `chmod`, the host file sharing layer may not be preserving the POSIX
+mode bits that OpenSSH requires. In that case, use a Docker volume or a Linux
+filesystem that preserves Unix ownership and permissions for private keys.
 
 ## Generate a key pair
 
