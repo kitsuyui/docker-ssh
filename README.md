@@ -23,6 +23,24 @@ docker run --rm -v ./home_ssh:/home/sshuser/.ssh kitsuyui/docker-ssh ssh user@ho
 
 All files must be owned by the user running the container (`sshuser`, uid 100).
 
+## Host key verification
+
+The container runs non-interactively (no TTY). If `known_hosts` does not contain
+the target host's fingerprint, SSH will wait for interactive input that never arrives
+and the container will appear to hang.
+
+**First-time setup — populate `known_hosts` before starting the tunnel:**
+
+```sh
+ssh-keyscan -H examplehost >> ./home_ssh/known_hosts
+```
+
+Alternatively, the example `docker-compose.yml` services use
+`-o StrictHostKeyChecking=accept-new`, which automatically trusts and records
+the host key on the first connection (TOFU model). This is convenient for
+development but should be replaced with a pre-populated `known_hosts` in
+environments where the remote host's identity must be verified.
+
 ## Generate a key pair
 
 The commented-out `keygen` service in `docker-compose.yml` runs `ssh-keygen` inside
