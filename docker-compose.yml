@@ -1,13 +1,34 @@
 version: '3'
 services:
 
-  # keygen:
-  #   image: kitsuyui/docker-ssh
-  #   volumes:
-  #     - ./home_ssh:/home/sshuser/.ssh
-  #   command: ["ssh-keygen"]
+  keygen:
+    profiles:
+      - setup
+    build: .
+    # image: kitsuyui/docker-ssh
+    user: "0:0"
+    volumes:
+      - ./home_ssh:/home/sshuser/.ssh
+    command:
+      - sh
+      - -eu
+      - -c
+      - |
+        mkdir -p /home/sshuser/.ssh
+        chown 200:200 /home/sshuser/.ssh
+        chmod 700 /home/sshuser/.ssh
+        if [ -e /home/sshuser/.ssh/id_ed25519 ]; then
+          echo "/home/sshuser/.ssh/id_ed25519 already exists; remove it before regenerating." >&2
+          exit 1
+        fi
+        ssh-keygen -t ed25519 -f /home/sshuser/.ssh/id_ed25519 -N ""
+        chown 200:200 /home/sshuser/.ssh/id_ed25519 /home/sshuser/.ssh/id_ed25519.pub
+        chmod 600 /home/sshuser/.ssh/id_ed25519
+        chmod 644 /home/sshuser/.ssh/id_ed25519.pub
 
   example_left_forward_8080:
+    profiles:
+      - forwarding
     # network_mode: host
     build: .
     # image: kitsuyui/docker-ssh
@@ -16,6 +37,8 @@ services:
     command: ssh -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -N -L 8080:127.0.0.1:8080 examplehost
 
   example_right_forward_8080:
+    profiles:
+      - forwarding
     # network_mode: host
     build: .
     # image: kitsuyui/docker-ssh

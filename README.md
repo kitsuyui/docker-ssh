@@ -30,7 +30,7 @@ On Linux hosts, make the directory and private files readable only by the
 container user before starting the container:
 
 ```sh
-sudo chown -R 100:100 home_ssh
+sudo chown -R 200:200 home_ssh
 chmod 700 home_ssh
 for key in home_ssh/id_ed25519 home_ssh/id_rsa; do
   [ ! -e "$key" ] || chmod 600 "$key"
@@ -39,7 +39,7 @@ done
 [ ! -e home_ssh/known_hosts ] || chmod 644 home_ssh/known_hosts
 ```
 
-All files must be owned by the user running the container (`sshuser`, uid 100).
+All files must be owned by the user running the container (`sshuser`, uid 200).
 If Docker Desktop for macOS or Windows reports `UNPROTECTED PRIVATE KEY FILE!`
 even after `chmod`, the host file sharing layer may not be preserving the POSIX
 mode bits that OpenSSH requires. In that case, use a Docker volume or a Linux
@@ -65,17 +65,27 @@ environments where the remote host's identity must be verified.
 
 ## Generate a key pair
 
-The commented-out `keygen` service in `docker-compose.yml` runs `ssh-keygen` inside
-the container and writes the output to `./home_ssh`:
+The `keygen` service in `docker-compose.yml` runs as a one-shot setup task and
+writes an Ed25519 key pair to `./home_ssh`:
 
 ```sh
 mkdir -p home_ssh
-docker compose run --rm keygen
+docker compose --profile setup run --rm keygen
 ```
 
-This places `id_ed25519` and `id_ed25519.pub` in `./home_ssh` with the correct
-permissions. Copy the public key to the remote host, then use the composed services
-for port forwarding or any other SSH command.
+This places `id_ed25519` and `id_ed25519.pub` in `./home_ssh` with ownership and
+permissions suitable for the container user. If `id_ed25519` already exists, the
+setup task exits instead of overwriting it.
+
+Copy the public key to the remote host, then start one forwarding example at a
+time:
+
+```sh
+docker compose --profile forwarding up example_left_forward_8080
+```
+
+Keep key generation separate from the forwarding services so tunnels never start
+before the mounted SSH directory has been prepared.
 
 # LICENSE
 
