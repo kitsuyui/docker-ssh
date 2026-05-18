@@ -45,11 +45,24 @@ even after `chmod`, the host file sharing layer may not be preserving the POSIX
 mode bits that OpenSSH requires. In that case, use a Docker volume or a Linux
 filesystem that preserves Unix ownership and permissions for private keys.
 
+## Non-interactive (batch) mode
+
+The image sets `BatchMode yes` in `/etc/ssh/ssh_config`. In batch mode, SSH
+exits immediately with an error instead of waiting for interactive input such as
+a passphrase prompt or a password prompt. This ensures the container never hangs
+in a CI/CD pipeline.
+
+If you need an interactive SSH session, override the setting at the command line:
+
+```sh
+docker run --rm -it -v ./home_ssh:/home/sshuser/.ssh kitsuyui/docker-ssh \
+  ssh -o BatchMode=no user@host
+```
+
 ## Host key verification
 
 The container runs non-interactively (no TTY). If `known_hosts` does not contain
-the target host's fingerprint, SSH will wait for interactive input that never arrives
-and the container will appear to hang.
+the target host's fingerprint, SSH exits with an error instead of hanging.
 
 **First-time setup — populate `known_hosts` before starting the tunnel:**
 
