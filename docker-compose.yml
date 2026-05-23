@@ -15,16 +15,30 @@ services:
       - -c
       - |
         mkdir -p /home/sshuser/.ssh
-        chown 200:200 /home/sshuser/.ssh
+        chown sshuser:sshuser /home/sshuser/.ssh
         chmod 700 /home/sshuser/.ssh
-        if [ -e /home/sshuser/.ssh/id_ed25519 ]; then
-          echo "/home/sshuser/.ssh/id_ed25519 already exists; remove it before regenerating." >&2
+        private_key_path=/home/sshuser/.ssh/id_ed25519
+        public_key_path="$${private_key_path}.pub"
+        for key_path in "$$private_key_path" "$$public_key_path"; do
+          if [ -L "$$key_path" ]; then
+            echo "$$key_path must not be a symlink; remove it before regenerating." >&2
+            exit 1
+          fi
+        done
+        if [ -e "$$private_key_path" ] || [ -e "$$public_key_path" ]; then
+          if [ -e "$$private_key_path" ] && [ -e "$$public_key_path" ]; then
+            echo "$$private_key_path and $$public_key_path already exist; remove both before regenerating." >&2
+          elif [ -e "$$private_key_path" ]; then
+            echo "$$private_key_path exists but $$public_key_path is missing; restore the missing public key or remove the private key before regenerating." >&2
+          else
+            echo "$$public_key_path exists but $$private_key_path is missing; remove the stale public key before regenerating." >&2
+          fi
           exit 1
         fi
-        ssh-keygen -t ed25519 -f /home/sshuser/.ssh/id_ed25519 -N ""
-        chown 200:200 /home/sshuser/.ssh/id_ed25519 /home/sshuser/.ssh/id_ed25519.pub
-        chmod 600 /home/sshuser/.ssh/id_ed25519
-        chmod 644 /home/sshuser/.ssh/id_ed25519.pub
+        ssh-keygen -t ed25519 -f "$$private_key_path" -N ""
+        chown sshuser:sshuser "$$private_key_path" "$$public_key_path"
+        chmod 600 "$$private_key_path"
+        chmod 644 "$$public_key_path"
 
   example_left_forward_8080:
     profiles:

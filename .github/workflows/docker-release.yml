@@ -136,9 +136,9 @@ jobs:
             tag_args+=("-t" "$tag")
           done
           sources=()
-          for digest in *; do
+          while IFS= read -r digest; do
             sources+=("${REGISTRY_IMAGE}@sha256:${digest}")
-          done
+          done < <(printf '%s\n' * | LC_ALL=C sort)
           docker buildx imagetools create "${tag_args[@]}" "${sources[@]}"
 
       - name: Inspect image
