@@ -76,6 +76,54 @@ the host key on the first connection (TOFU model). This is convenient for
 development but should be replaced with a pre-populated `known_hosts` in
 environments where the remote host's identity must be verified.
 
+## Port forwarding and Docker network isolation
+
+SSH local forwarding (`-L`) and remote forwarding (`-R`) behave differently
+inside a Docker container.
+
+### Local forward (`-L`)
+
+```
+ssh -N -L 8080:127.0.0.1:8080 examplehost
+```
+
+`-L` binds the tunnel's local endpoint inside the **container**. With Docker's
+default bridge network, the container's `127.0.0.1` is not reachable from the
+Docker host. Running this command inside the container creates a tunnel that is
+only accessible from within the container, not from the host OS.
+
+To reach the tunnel from the Docker host, use one of the following approaches:
+
+**Option A — host network mode** (`network_mode: host` in `docker-compose.yml`)
+
+The container shares the host's network stack. The tunnel binds to host
+`127.0.0.1:8080` directly. Simple, but the container loses network isolation.
+
+**Option B — port mapping with all-interface bind**
+
+Change the bind address to `0.0.0.0` and add a `ports:` mapping:
+
+```yaml
+ports:
+  - "127.0.0.1:8080:8080"
+command: ssh ... -N -L 0.0.0.0:8080:127.0.0.1:8080 examplehost
+```
+
+Docker proxies `host:8080` → `container:8080`. The tunnel must listen on all
+container interfaces (`0.0.0.0`) rather than only on `127.0.0.1` for the proxy
+to reach it. Network isolation is preserved; the port is exposed only on the
+specified host address.
+
+### Remote forward (`-R`)
+
+```
+ssh -N -R 0.0.0.0:8080:127.0.0.1:8080 examplehost
+```
+
+`-R` binds the port on the **remote host** (examplehost), not locally. Docker
+network isolation does not affect which ports are reachable on the remote side,
+so `network_mode: host` is not required for remote forwarding.
+
 ## Generate a key pair
 
 The `keygen` service in `docker-compose.yml` runs as a one-shot setup task and
