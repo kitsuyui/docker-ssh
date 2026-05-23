@@ -43,6 +43,21 @@ services:
   example_left_forward_8080:
     profiles:
       - forwarding
+    # -L (local forward) binds the tunnel port on the container's loopback by
+    # default. Docker's bridge network isolates the container, so the Docker
+    # host cannot reach that loopback port directly.
+    #
+    # To make the tunnel accessible from the Docker host, choose one option:
+    #
+    # Option A — enable host network mode (uncomment the line below). The
+    # container shares the host's network stack, so the tunnel appears on
+    # host 127.0.0.1:8080 directly. Simple, but removes network isolation.
+    #
+    # Option B — bind the tunnel to all container interfaces and expose the
+    # port via Docker's port mapping. Change the command to
+    # "-L 0.0.0.0:8080:127.0.0.1:8080" and add a "ports:" section. Docker
+    # proxies host:8080 → container:8080. Preserves network isolation.
+    #
     # network_mode: host
     build: .
     # image: kitsuyui/docker-ssh
@@ -53,6 +68,9 @@ services:
   example_right_forward_8080:
     profiles:
       - forwarding
+    # -R (remote forward) binds the port on the remote host (examplehost), not
+    # locally. Docker network isolation does not affect reachability from the
+    # Docker host for this direction, so network_mode: host is not required here.
     # network_mode: host
     build: .
     # image: kitsuyui/docker-ssh
