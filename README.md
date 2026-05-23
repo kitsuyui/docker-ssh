@@ -87,8 +87,10 @@ docker compose --profile setup run --rm keygen
 ```
 
 This places `id_ed25519` and `id_ed25519.pub` in `./home_ssh` with ownership and
-permissions suitable for the container user. If `id_ed25519` already exists, the
-setup task exits instead of overwriting it.
+permissions suitable for the container user. If either key file already exists,
+the setup task exits instead of overwriting it. Remove the existing key pair, or
+restore the missing half of a partial key pair, before running key generation
+again.
 
 Copy the public key to the remote host, then start one forwarding example at a
 time:
