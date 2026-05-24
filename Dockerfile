@@ -11,6 +11,8 @@ adduser -S -u 200 -G sshuser sshuser && \
 mkdir -p /home/sshuser/.ssh && \
 chown sshuser:sshuser /home/sshuser/.ssh && \
 chmod 700 /home/sshuser/.ssh
+COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 USER sshuser
 WORKDIR /home/sshuser
 VOLUME /home/sshuser/.ssh
