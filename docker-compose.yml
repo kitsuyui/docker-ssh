@@ -43,6 +43,7 @@ services:
   example_left_forward_8080:
     profiles:
       - forwarding
+    restart: on-failure
     # -L (local forward) binds the tunnel port on the container's loopback by
     # default. Docker's bridge network isolates the container, so the Docker
     # host cannot reach that loopback port directly.
@@ -81,6 +82,7 @@ services:
   example_right_forward_8080:
     profiles:
       - forwarding
+    restart: on-failure
     # -R (remote forward) binds the port on the remote host (examplehost), not
     # locally. Docker network isolation does not affect reachability from the
     # Docker host for this direction, so network_mode: host is not required here.
