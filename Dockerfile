@@ -13,6 +13,11 @@ chown sshuser:sshuser /home/sshuser/.ssh && \
 chmod 700 /home/sshuser/.ssh
 COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Verify the ssh process is still running. A hung connection keeps the process
+# alive but passes this check; the ServerAlive* options in docker-compose.yml
+# are responsible for exiting on a broken tunnel so the container restarts.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD pgrep -x ssh > /dev/null
 USER sshuser
 WORKDIR /home/sshuser
 VOLUME /home/sshuser/.ssh
