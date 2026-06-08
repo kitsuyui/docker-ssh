@@ -124,6 +124,11 @@ ssh -N -R 0.0.0.0:8080:127.0.0.1:8080 examplehost
 network isolation does not affect which ports are reachable on the remote side,
 so `network_mode: host` is not required for remote forwarding.
 
+> **Server prerequisite**: binding to a non-loopback address (`0.0.0.0`) requires
+> `GatewayPorts clientspecified` (or `GatewayPorts yes`) in examplehost's
+> `/etc/ssh/sshd_config`. With the default `GatewayPorts no`, OpenSSH silently
+> falls back to loopback-only binding regardless of the requested address.
+
 ## Generate a key pair
 
 The `keygen` service in `docker-compose.yml` runs as a one-shot setup task and
@@ -148,6 +153,7 @@ time:
 docker compose --profile forwarding up example_left_forward_8080
 
 # Remote forward: expose localhost:8080 on examplehost:8080
+# Requires GatewayPorts clientspecified in examplehost's sshd_config
 docker compose --profile forwarding up example_right_forward_8080
 ```
 
