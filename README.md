@@ -150,6 +150,23 @@ docker compose --profile forwarding up example_left_forward_8080
 Keep key generation separate from the forwarding services so tunnels never start
 before the mounted SSH directory has been prepared.
 
+## Development
+
+Install [lefthook](https://github.com/evilmartians/lefthook) and register the hooks:
+
+```sh
+lefthook install
+```
+
+The hooks run two fast static checks before every commit and push:
+
+- **hadolint** — lints the `Dockerfile` for best-practice issues
+- **shellcheck** — analyses `entrypoint.sh` for shell script bugs
+
+These checks are intentionally lightweight and run entirely locally so problems
+surface before they reach CI. The full `docker build` is left to CI because it
+requires a Docker daemon and takes considerably longer.
+
 # LICENSE
 
 The 3-Clause BSD License. See also LICENSE file.
