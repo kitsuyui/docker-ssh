@@ -144,7 +144,11 @@ Copy the public key to the remote host, then start one forwarding example at a
 time:
 
 ```sh
+# Local forward: expose examplehost:8080 on the Docker host
 docker compose --profile forwarding up example_left_forward_8080
+
+# Remote forward: expose localhost:8080 on examplehost:8080
+docker compose --profile forwarding up example_right_forward_8080
 ```
 
 Keep key generation separate from the forwarding services so tunnels never start
