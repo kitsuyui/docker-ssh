@@ -25,4 +25,8 @@ jobs:
 
       - name: Build
         run: |
-          docker build .
+          docker build --load -t docker-ssh-test .
+
+      - name: Smoke test
+        run: |
+          docker run --rm docker-ssh-test ssh -V
