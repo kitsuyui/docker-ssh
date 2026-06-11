@@ -171,6 +171,28 @@ These checks are intentionally lightweight and run entirely locally so problems
 surface before they reach CI. The full `docker build` is left to CI because it
 requires a Docker daemon and takes considerably longer.
 
+## Release criteria
+
+Docker Hub publishing is driven by GitHub Releases. The
+`docker-release.yml` workflow builds images for pull requests and prereleases,
+but it pushes Docker Hub tags only when a non-prerelease GitHub Release is
+published.
+
+Cut a new release when a merged change should be available through
+`docker pull kitsuyui/docker-ssh:latest`, including:
+
+- security fixes in the image, Dockerfile, entrypoint, or SSH defaults
+- runtime behavior changes for SSH invocation, tunneling, logging, or health
+  checks
+- dependency or base-image updates that affect the published image contents
+- documentation-only changes that do not change the image can wait for the next
+  runtime or security release
+
+Before publishing, make sure the pull-request Docker build has passed on
+`main`, choose the next semantic version tag, and publish a GitHub Release for
+that tag. The release workflow creates the multi-platform image and tags it with
+the release version, the major/minor alias, and `latest`.
+
 # LICENSE
 
 The 3-Clause BSD License. See also LICENSE file.
