@@ -1,4 +1,7 @@
 version: '3'
+# Image source: each service defaults to a local build from the Dockerfile.
+# To use the pre-built Docker Hub image instead, swap the two lines in each
+# service: comment out `build: .` and uncomment `# image: kitsuyui/docker-ssh`.
 services:
 
   keygen:
