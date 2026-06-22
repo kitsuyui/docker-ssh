@@ -177,6 +177,29 @@ These checks are intentionally lightweight and run entirely locally so problems
 surface before they reach CI. The full `docker build` is left to CI because it
 requires a Docker daemon and takes considerably longer.
 
+### Updating `.gitignore`
+
+Do not edit `.gitignore` directly. It is generated from `.gitignore.in` with
+[`gitignore.in`](https://github.com/gitignore-in/gitignore-in).
+
+Install the tool from its releases page or with Homebrew:
+
+```sh
+brew tap gitignore-in/gitignore-in
+brew install gitignore-in
+```
+
+Add ignore entries to `.gitignore.in` with one supported template command per
+line, then rebuild `.gitignore`:
+
+```sh
+gitignore.in
+```
+
+This repository's `.gitignore.in` currently uses `echo home_ssh/` to emit the
+local SSH credential mount directory. The scheduled `gitignore-in.yml` workflow
+also refreshes the generated `.gitignore` automatically.
+
 ## Release criteria
 
 Docker Hub publishing is driven by GitHub Releases. The
