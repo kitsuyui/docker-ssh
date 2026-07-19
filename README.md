@@ -52,11 +52,24 @@ exits immediately with an error instead of waiting for interactive input such as
 a passphrase prompt or a password prompt. This ensures the container never hangs
 in a CI/CD pipeline.
 
+The image also sets `ServerAliveInterval 15`, `ServerAliveCountMax 3`, and
+`ExitOnForwardFailure yes` in `/etc/ssh/ssh_config`. Long-lived tunnel
+containers therefore fail closed by default when the remote endpoint stops
+responding or a requested forward cannot be established, so a restart policy can
+reconnect them without per-call keepalive duplication.
+
 If you need an interactive SSH session, override the setting at the command line:
 
 ```sh
 docker run --rm -it -v ./home_ssh:/home/sshuser/.ssh kitsuyui/docker-ssh \
   ssh -o BatchMode=no user@host
+```
+
+If you need different tunnel liveness thresholds, override them the same way:
+
+```sh
+docker run --rm -v ./home_ssh:/home/sshuser/.ssh kitsuyui/docker-ssh \
+  ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=2 -N -L 8080:127.0.0.1:8080 user@host
 ```
 
 ## Host key verification
@@ -158,7 +171,9 @@ docker compose --profile forwarding up example_right_forward_8080
 ```
 
 Keep key generation separate from the forwarding services so tunnels never start
-before the mounted SSH directory has been prepared.
+before the mounted SSH directory has been prepared. The forwarding examples rely
+on the image defaults for `ServerAlive*` and `ExitOnForwardFailure`, so you only
+need to pass extra `-o` flags when overriding those defaults.
 
 ## Development
 

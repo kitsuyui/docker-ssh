@@ -6,6 +6,9 @@ FROM alpine:3.21@sha256:48b0309ca019d89d40f670aa1bc06e426dc0931948452e8491e3d650
 ARG OPENSSH_CLIENT_VERSION=9.9_p2-r0
 RUN apk add --no-cache openssh-client=${OPENSSH_CLIENT_VERSION} && \
 printf 'BatchMode yes\n' >> /etc/ssh/ssh_config && \
+printf 'ServerAliveInterval 15\n' >> /etc/ssh/ssh_config && \
+printf 'ServerAliveCountMax 3\n' >> /etc/ssh/ssh_config && \
+printf 'ExitOnForwardFailure yes\n' >> /etc/ssh/ssh_config && \
 addgroup -S -g 200 sshuser && \
 adduser -S -u 200 -G sshuser sshuser && \
 mkdir -p /home/sshuser/.ssh && \
@@ -13,9 +16,8 @@ chown sshuser:sshuser /home/sshuser/.ssh && \
 chmod 700 /home/sshuser/.ssh
 COPY --chmod=755 entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-# Verify the ssh process is still running. A hung connection keeps the process
-# alive but passes this check; the ServerAlive* options in docker-compose.yml
-# are responsible for exiting on a broken tunnel so the container restarts.
+# Verify the ssh process is still running. The image defaults enable OpenSSH
+# keepalives so broken tunnels should exit and let the container restart.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD pgrep -x ssh > /dev/null
 USER sshuser
