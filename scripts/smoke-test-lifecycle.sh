@@ -16,7 +16,14 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-ssh-keygen -q -t ed25519 -N '' -f "$tmpdir/id_ed25519" >/dev/null
+# The image runs as the unprivileged "sshuser" (uid/gid 200), so the private
+# key mounted into it must be owned by that uid: if it stayed owned by the
+# host user, ssh could not open it (EACCES), and widening its mode instead
+# would make ssh refuse it as an "unprotected private key". Generate the key
+# pair as uid 200 inside the image itself so ownership matches from the start.
+chmod 777 "$tmpdir"
+docker run --rm -u 200:200 -v "$tmpdir:/keys" "$image_tag" \
+  ssh-keygen -q -t ed25519 -N '' -f /keys/id_ed25519 >/dev/null
 cp "$tmpdir/id_ed25519.pub" "$tmpdir/authorized_keys"
 
 docker network create "$network_name" >/dev/null
@@ -87,8 +94,12 @@ fi
 
 docker pause "$server_name" >/dev/null
 
+# ServerAliveInterval(15) * ServerAliveCountMax(3) = 45s worst-case before the
+# client even notices the stall, plus up to ~15s until the first probe after
+# the last successful one. Give extra margin over that ~60s worst case so the
+# assertion isn't flaky on a busy CI runner.
 tunnel_exited=0
-for _ in $(seq 1 75); do
+for _ in $(seq 1 120); do
   if [ "$(docker inspect -f '{{.State.Status}}' "$tunnel_name")" = "exited" ]; then
     tunnel_exited=1
     break
