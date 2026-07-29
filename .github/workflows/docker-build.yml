@@ -31,3 +31,4 @@ jobs:
       - name: Smoke test
         run: |
           docker run --rm docker-ssh-test ssh -V
+          ./scripts/smoke-test-lifecycle.sh docker-ssh-test
