@@ -19,7 +19,7 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 # Verify the ssh process is still running. The image defaults enable OpenSSH
 # keepalives so broken tunnels should exit and let the container restart.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD pgrep -x ssh > /dev/null
-USER sshuser
+  CMD ["pgrep", "-x", "ssh"]
+USER 200:200
 WORKDIR /home/sshuser
 VOLUME /home/sshuser/.ssh
