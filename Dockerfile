@@ -1,4 +1,4 @@
-FROM alpine:3.21@sha256:48b0309ca019d89d40f670aa1bc06e426dc0931948452e8491e3d65087abc07d
+FROM alpine:3.24@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
 # Alpine uses 9.9_p2-r0 for OpenSSH 9.9p2, package revision r0.
 # OpenSSH 9.9p2 is a security fix release:
 # https://www.openssh.com/txt/release-9.9p2
