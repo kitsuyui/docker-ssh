@@ -1,9 +1,7 @@
 FROM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
-# Alpine uses 9.9_p2-r1 for OpenSSH 9.9p2, package revision r1.
-# OpenSSH 9.9p2 is a security fix release:
-# https://www.openssh.com/txt/release-9.9p2
-# renovate: datasource=repology depName=alpine_3_21/openssh versioning=loose
-ARG OPENSSH_CLIENT_VERSION=9.9_p2-r1
+# Alpine 3.24 currently provides OpenSSH 10.3p1, package revision r2.
+# renovate: datasource=repology depName=alpine_3_24/openssh versioning=loose
+ARG OPENSSH_CLIENT_VERSION=10.3_p1-r2
 RUN apk add --no-cache openssh-client=${OPENSSH_CLIENT_VERSION} && \
 printf 'BatchMode yes\n' >> /etc/ssh/ssh_config && \
 printf 'ServerAliveInterval 15\n' >> /etc/ssh/ssh_config && \
